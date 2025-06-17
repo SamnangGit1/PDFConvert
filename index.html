@@ -2,14 +2,72 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Image to PDF</title>
+  <title>Image to PDF with Rain Background</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #07131c, #305472);
+      position: relative;
+      height: 100vh;
     }
+
+    .btn {
+      position: relative;
+      padding: 10px 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: none;
+      border: 2px solid #646cff;
+      border-radius: 8px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: inline-block;
+      margin: 5px;
+    }
+
+    .liquid {
+      background: linear-gradient(#646cff 0 0) no-repeat calc(200% - var(--p, 0%)) 100% / 200% var(--p, 0.2em);
+      transition: 0.3s var(--t, 0s), background-position 0.3s calc(0.3s - var(--t, 0s));
+    }
+
+    .liquid:hover {
+      --p: 100%;
+      --t: 0.3s;
+      color: #fff;
+    }
+
+    .rain {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .raindrop {
+      position: absolute;
+      width: 2px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.3);
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-100vh); }
+      100% { transform: translateY(100vh); }
+    }
+
     .navbar {
+      position: relative;
+      z-index: 1;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -17,10 +75,12 @@
       color: white;
       padding: 10px 20px;
     }
+
     .navbar .title {
       font-size: 18px;
       font-weight: bold;
     }
+
     .navbar .profile img {
       width: 40px;
       height: 40px;
@@ -28,12 +88,23 @@
       border: 2px solid white;
       object-fit: cover;
     }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-top: 40px;
+      color: white;
+    }
+
     input[type="file"] {
-      margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
+
+  <div class="rain" id="rain"></div>
 
   <div class="navbar">
     <div class="title">Create by Mr.Samnang</div>
@@ -42,18 +113,34 @@
     </div>
   </div>
 
-  <div style="text-align: center; margin-top: 20px;">
+  <div class="container">
     <h2>Select images to convert to PDF</h2>
-    <input type="file" id="imageInput" accept="image/*" multiple ><br><br>
-    <button onclick="convertToPDF()">Convert to PDF</button>
-    <button id="downloadBtn" onclick="downloadPDF()" disabled>Download PDF</button>
+
+    <input type="file" id="imageInput" accept="image/*" multiple>
+
+    <label for="imageInput" class="btn liquid">Choose Images</label>
+  <div>
+  <button id="convertBtn" class="btn liquid st">Convert to PDF</button>
+  
   </div>
 
-  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    let generatedPDF = null;
+    // Generate rain drops
+    const rainContainer = document.getElementById('rain');
+    for (let i = 0; i < 100; i++) {
+      const drop = document.createElement('div');
+      drop.classList.add('raindrop');
+      drop.style.left = Math.random() * 100 + 'vw';
+      drop.style.animationDuration = (Math.random() * 1 + 0.5) + 's';
+      drop.style.animationDelay = (Math.random() * 2) + 's';
+      rainContainer.appendChild(drop);
+    }
 
-    async function convertToPDF() {
+    // Convert to PDF
+    const convertBtn = document.getElementById('convertBtn');
+
+    convertBtn.addEventListener('click', async () => {
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF();
       const files = document.getElementById('imageInput').files;
@@ -64,8 +151,7 @@
       }
 
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const imgData = await toDataURL(file);
+        const imgData = await toDataURL(files[i]);
         const img = new Image();
         img.src = imgData;
         await img.decode();
@@ -76,16 +162,17 @@
         pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
       }
 
-      generatedPDF = pdf;
-      document.getElementById('downloadBtn').disabled = false;
-      alert("PDF is ready. Click 'Download PDF' to save.");
-    }
+      const pdfBlob = pdf.output('blob');
+      const pdfURL = URL.createObjectURL(pdfBlob);
 
-    function downloadPDF() {
-      if (generatedPDF) {
-        generatedPDF.save("images.pdf");
-      }
-    }
+      const link = document.createElement('a');
+      link.href = pdfURL;
+      link.download = 'images.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(pdfURL);
+    });
 
     function toDataURL(file) {
       return new Promise((resolve, reject) => {
