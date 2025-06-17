@@ -8,7 +8,6 @@
       font-family: Arial, sans-serif;
     }
 
-    /* Navbar styling */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -31,27 +30,9 @@
       object-fit: cover;
     }
 
-    /* Centered content */
-    .container {
+    .center {
       text-align: center;
       margin-top: 20px;
-      padding: 10px;
-    }
-
-    /* Preview style */
-    .preview-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .preview-container img {
-      width: 100px;
-      height: auto;
-      border: 1px solid #ccc;
-      border-radius: 5px;
     }
   </style>
 </head>
@@ -65,36 +46,25 @@
     </div>
   </div>
 
-  <!-- Main content -->
-  <div class="container">
-    <h2>Select images to convert to PDF1</h2>
-    <input type="file" id="imageInput" accept="image/*" /><br><br>
+  <!-- Content -->
+  <div class="center">
+    <h2>Select images to convert to PDF</h2>
+    <input type="file" id="imageInput" accept="image/*" multiple><br><br>
+    <p>Total selected: <span id="count">0</span> image(s)</p>
     <button onclick="convertToPDF()">Convert to PDF</button>
     <button id="downloadBtn" onclick="downloadPDF()" disabled>Download PDF</button>
-    <p>Total selected: <span id="count">0</span></p>
-    <div class="preview-container" id="preview"></div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- jsPDF library -->
+  <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
   <script>
     let allFiles = [];
     let generatedPDF = null;
 
-    document.getElementById('imageInput').addEventListener('change', async function (e) {
-      const selectedFiles = Array.from(e.target.files);
-      allFiles = allFiles.concat(selectedFiles);
-
+    document.getElementById('imageInput').addEventListener('change', function (e) {
+      allFiles = Array.from(e.target.files); // overwrite with new selection
       document.getElementById('count').textContent = allFiles.length;
-
-      const preview = document.getElementById('preview');
-      preview.innerHTML = '';
-      for (let file of allFiles) {
-        const img = document.createElement('img');
-        img.src = await toDataURL(file);
-        preview.appendChild(img);
-      }
-
-      e.target.value = ''; // allow re-selection
     });
 
     async function convertToPDF() {
@@ -121,7 +91,7 @@
 
       generatedPDF = pdf;
       document.getElementById('downloadBtn').disabled = false;
-      alert("PDF created! Click 'Download PDF'.");
+      alert("PDF is ready. Click 'Download PDF' to save.");
     }
 
     function downloadPDF() {
@@ -139,5 +109,6 @@
       });
     }
   </script>
+
 </body>
 </html>
