@@ -1,13 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Image to PDF with Preview</title>
+  <title>Image to PDF</title>
   <style>
     body {
-      font-family: Arial;
-      margin: 20px;
-      text-align: center;
+      margin: 0;
+      font-family: Arial, sans-serif;
     }
+
+    /* Navbar styling */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: black;
+      color: white;
+      padding: 10px 20px;
+    }
+
+    .navbar .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .navbar .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+
+    /* Centered content */
+    .container {
+      text-align: center;
+      margin-top: 20px;
+      padding: 10px;
+    }
+
+    /* Preview style */
     .preview-container {
       display: flex;
       flex-wrap: wrap;
@@ -15,6 +46,7 @@
       gap: 10px;
       margin-top: 10px;
     }
+
     .preview-container img {
       width: 100px;
       height: auto;
@@ -25,14 +57,23 @@
 </head>
 <body>
 
-  <h2>Choose Images to Convert to PDF1</h2>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="title">Create by Mr.Samnang</div>
+    <div class="profile">
+      <img src="photo_2024-10-24_22-18-12.jpg" alt="Profile Image">
+    </div>
+  </div>
 
-  <input type="file" id="imageInput" accept="image/*" /><br><br>
-  <button onclick="convertToPDF()">Convert to PDF</button>
-  <button onclick="downloadPDF()" id="downloadBtn" disabled>Download PDF</button>
-
-  <p>Total selected: <span id="count">0</span></p>
-  <div class="preview-container" id="preview"></div>
+  <!-- Main content -->
+  <div class="container">
+    <h2>Select images to convert to PDF1</h2>
+    <input type="file" id="imageInput" accept="image/*" /><br><br>
+    <button onclick="convertToPDF()">Convert to PDF</button>
+    <button id="downloadBtn" onclick="downloadPDF()" disabled>Download PDF</button>
+    <p>Total selected: <span id="count">0</span></p>
+    <div class="preview-container" id="preview"></div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
@@ -53,8 +94,7 @@
         preview.appendChild(img);
       }
 
-      // Clear input so user can re-select more files
-      e.target.value = '';
+      e.target.value = ''; // allow re-selection
     });
 
     async function convertToPDF() {
